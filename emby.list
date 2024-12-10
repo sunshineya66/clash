@@ -1,9 +1,7 @@
 # 代理补充列表
 
 # 域名后缀匹配
-DOMAIN-SUFFIX,stream1.misakaf.org
-DOMAIN-SUFFIX,emby.misakaf.org
-DOMAIN-SUFFIX,maoxiong.cloud
+DOMAIN-SUFFIX,misakaf.org
 
 # 域名关键字匹配
 

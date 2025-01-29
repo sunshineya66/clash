@@ -3,7 +3,7 @@
 # 域名后缀匹配
 
 # 域名关键字匹配
-
+DOMAIN-KEYWORD,nebula
 # IP段匹配
 
 # 国外DNS

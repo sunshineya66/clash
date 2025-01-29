@@ -8,9 +8,14 @@ DOMAIN-SUFFIX,jingzhe.pro
 DOMAIN-SUFFIX,1024.name
 DOMAIN-SUFFIX,emby.as174.de
 
-DOMAIN-SUFFIX,fourhoi.com
+DOMAIN-SUFFIX,fs1.app
 
 # 域名关键字匹配
+DOMAIN-KEYWORD,missav
+DOMAIN-KEYWORD,phncdn
+DOMAIN-KEYWORD,fourhoi
+DOMAIN-KEYWORD,surrit
+DOMAIN-KEYWORD,mushroomtrack
 
 # IP段匹配
 

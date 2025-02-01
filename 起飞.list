@@ -4,6 +4,7 @@
 
 # 域名关键字匹配
 DOMAIN-KEYWORD,nebula
+DOMAIN-KEYWORD,temby
 # IP段匹配
 
 # 国外DNS

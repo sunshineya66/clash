@@ -4,6 +4,7 @@
 DOMAIN-SUFFIX,cloudworkstations.dev
 DOMAIN-SUFFIX,ungm.org
 DOMAIN-SUFFIX,co.uk
+DOMAIN-SUFFIX,unops.org
 # 域名关键字匹配
 DOMAIN-KEYWORD,nebula
 DOMAIN-KEYWORD,temby

@@ -2,10 +2,11 @@
 
 # 域名后缀匹配
 DOMAIN-SUFFIX,cloudworkstations.dev
+DOMAIN-SUFFIX,ungm.org
+DOMAIN-SUFFIX,co.uk
 # 域名关键字匹配
 DOMAIN-KEYWORD,nebula
 DOMAIN-KEYWORD,temby
-DOMAIN-KEYWORD,ungm
 # IP段匹配
 
 # 国外DNS

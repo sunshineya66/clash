@@ -5,6 +5,19 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.0] - 2026-02-23
+
+### Added
+- **Git history ingestion**: `gnosis-mcp ingest-git <repo-path>` converts commit history into searchable markdown documents
+- Commit messages, authors, dates, and file associations parsed from `git log` via subprocess (zero new deps)
+- One markdown document per file, each commit as an H2 section — flows through existing chunk/embed/search pipeline
+- Stored as `git-history/<file-path>` with category `git-history` for scoped searches
+- Auto-linking to source file paths via `relates_to` graph
+- Content hashing for incremental re-ingest (skips files with unchanged history)
+- CLI flags: `--since`, `--max-commits`, `--include`, `--exclude`, `--dry-run`, `--embed`, `--merges`
+- New `src/gnosis_mcp/parsers/` package for non-file ingest sources
+- 48 new tests (pure function + integration with temp git repos)
+
 ## [0.8.4] - 2026-02-22
 
 ### Changed

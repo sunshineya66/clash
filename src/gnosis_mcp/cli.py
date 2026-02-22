@@ -477,6 +477,55 @@ def cmd_crawl(args: argparse.Namespace) -> None:
     asyncio.run(_run())
 
 
+def cmd_ingest_git(args: argparse.Namespace) -> None:
+    """Ingest git commit history into the database."""
+    from gnosis_mcp.config import GnosisMcpConfig
+    from gnosis_mcp.parsers.git_history import GitIngestConfig, ingest_git
+
+    config = GnosisMcpConfig.from_env()
+
+    git_config = GitIngestConfig(
+        since=args.since,
+        max_commits=args.max_commits,
+        include=getattr(args, "include", None),
+        exclude=getattr(args, "exclude", None),
+        embed=getattr(args, "embed", False),
+        dry_run=args.dry_run,
+        merge_commits=getattr(args, "merges", False),
+    )
+
+    async def _run() -> None:
+        results = await ingest_git(config, args.repo, git_config)
+
+        total_chunks = 0
+        counts: Counter[str] = Counter()
+        for r in results:
+            counts[r.action] += 1
+            total_chunks += r.chunks
+            marker = {
+                "ingested": "+", "unchanged": "=", "skipped": "-",
+                "error": "!", "dry-run": "?",
+            }
+            sym = marker.get(r.action, " ")
+            detail = f"  ({r.detail})" if r.detail else ""
+            log.info(
+                "[%s] %s  (%d commits, %d chunks)%s",
+                sym, r.path, r.commits, r.chunks, detail,
+            )
+
+        log.info("")
+        log.info(
+            "Done: %d ingested, %d unchanged, %d skipped, %d errors (%d total chunks)",
+            counts["ingested"],
+            counts["unchanged"],
+            counts["skipped"],
+            counts["error"],
+            total_chunks,
+        )
+
+    asyncio.run(_run())
+
+
 def cmd_diff(args: argparse.Namespace) -> None:
     """Show what would change on re-ingest."""
     from gnosis_mcp.config import GnosisMcpConfig
@@ -655,6 +704,34 @@ def main() -> None:
         help="Maximum number of URLs to crawl (default: 5000)",
     )
 
+    # ingest-git
+    p_igit = sub.add_parser(
+        "ingest-git", help="Ingest git commit history as searchable documents"
+    )
+    p_igit.add_argument("repo", help="Path to git repository")
+    p_igit.add_argument(
+        "--since", default=None,
+        help="Only commits since this date (e.g. '6m', '2025-01-01')",
+    )
+    p_igit.add_argument(
+        "--max-commits", type=int, default=10,
+        help="Max commits per file, most recent (default: 10)",
+    )
+    p_igit.add_argument(
+        "--include", default=None,
+        help="Only include files matching this glob (e.g. 'src/**')",
+    )
+    p_igit.add_argument(
+        "--exclude", default=None,
+        help="Skip files matching this glob (e.g. '*.lock,package.json')",
+    )
+    p_igit.add_argument("--dry-run", action="store_true", help="Preview without ingesting")
+    p_igit.add_argument("--embed", action="store_true", help="Embed chunks after ingestion")
+    p_igit.add_argument(
+        "--merges", action="store_true",
+        help="Include merge commits (excluded by default)",
+    )
+
     # diff
     p_diff = sub.add_parser("diff", help="Show what would change on re-ingest")
     p_diff.add_argument("path", help="File or directory to compare")
@@ -671,6 +748,7 @@ def main() -> None:
         "serve": cmd_serve,
         "init-db": cmd_init_db,
         "ingest": cmd_ingest,
+        "ingest-git": cmd_ingest_git,
         "crawl": cmd_crawl,
         "search": cmd_search,
         "embed": cmd_embed,

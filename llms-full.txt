@@ -198,9 +198,30 @@ gnosis-mcp check                                           # Verify connection +
 gnosis-mcp embed [--provider P] [--model M] [--dry-run]    # Backfill embeddings (auto-detects local provider)
 gnosis-mcp init-db [--dry-run]                             # Create tables (or preview SQL)
 gnosis-mcp export [-f json|markdown|csv] [-c CAT]          # Export documents
+gnosis-mcp ingest-git <repo> [--since S] [--max-commits N] [--include P] [--exclude P] [--dry-run] [--embed] [--merges]
 gnosis-mcp diff <path>                                     # Show what would change on re-ingest
 gnosis-mcp --version                                       # Show version
 ```
+
+## Git History Ingestion
+
+`gnosis-mcp ingest-git <repo-path>` converts git commit history into searchable markdown documents. Zero new dependencies — uses `git log` via subprocess.
+
+```bash
+gnosis-mcp ingest-git .                                      # Current repo, all files
+gnosis-mcp ingest-git /path/to/repo --since 6m               # Last 6 months only
+gnosis-mcp ingest-git . --include "src/*" --max-commits 5    # Filtered + limited
+gnosis-mcp ingest-git . --dry-run                            # Preview without ingesting
+gnosis-mcp ingest-git . --embed                              # Embed for semantic search
+```
+
+- One markdown document per file with meaningful commit history
+- Each commit becomes an H2 section with date, author, subject, body
+- Stored as `git-history/<file-path>` to avoid collision with source docs
+- Category set to `git-history` for scoped searches (`search_docs(query, category="git-history")`)
+- Auto-links to source file paths via `relates_to` graph
+- Content hashing for incremental re-ingest (skips files with unchanged history)
+- `--merges` flag includes merge commits (skipped by default)
 
 ## Web Crawl
 
@@ -250,11 +271,13 @@ src/gnosis_mcp/
 ├── server.py          # FastMCP server: 6 tools + 3 resources + webhook helper
 ├── ingest.py          # File scanner + converters: multi-format, smart chunking (H2/H3/H4), hashing
 ├── crawl.py           # Web crawler — sitemap/BFS discovery, robots.txt, ETag caching, trafilatura
+├── parsers/           # Non-file ingest sources
+│   └── git_history.py # Git log → markdown documents per file (commit parsing, grouping, rendering)
 ├── watch.py           # File watcher: mtime polling, auto-re-ingest on changes
 ├── schema.py          # PostgreSQL DDL — tables, indexes, HNSW, hybrid search functions
 ├── embed.py           # Embedding sidecar: provider abstraction (openai/ollama/custom/local)
 ├── local_embed.py     # Local ONNX embedding engine — stdlib urllib model download
-└── cli.py             # argparse CLI: serve, init-db, ingest, search, embed, stats, export, check
+└── cli.py             # argparse CLI: serve, init-db, ingest, ingest-git, crawl, search, embed, stats, export, diff, check
 ```
 
 Default install deps: mcp + aiosqlite. Optional: asyncpg (via `[postgres]` extra), onnxruntime + tokenizers + numpy + sqlite-vec (via `[embeddings]` extra), httpx + trafilatura (via `[web]` extra). Model download uses stdlib urllib (no huggingface-hub dependency).

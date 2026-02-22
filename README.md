@@ -15,6 +15,7 @@
 
 <p>
   <a href="#quick-start">Quick Start</a> &middot;
+  <a href="#git-history">Git History</a> &middot;
   <a href="#web-crawl">Web Crawl</a> &middot;
   <a href="#backends">Backends</a> &middot;
   <a href="#editor-integrations">Editors</a> &middot;
@@ -49,6 +50,7 @@
 
 - **Zero config** — SQLite by default, `pip install` and go
 - **Hybrid search** — keyword (BM25) + semantic (local ONNX embeddings, no API key)
+- **Git history** — ingest commit messages as searchable context (`ingest-git`)
 - **Web crawl** — ingest documentation from any website via sitemap or link crawl
 - **Multi-format** — `.md` `.txt` `.ipynb` `.toml` `.csv` `.json` + optional `.rst` `.pdf`
 - **Auto-linking** — `relates_to` frontmatter creates a navigable document graph
@@ -120,6 +122,20 @@ gnosis-mcp crawl https://docs.sveltekit.dev/ --sitemap --force --embed
 ```
 
 Respects `robots.txt`, caches with ETag/Last-Modified for incremental re-crawl, and rate-limits requests (5 concurrent, 0.2s delay). Crawled pages use the URL as the document path and hostname as the category — searchable like any other doc.
+
+## Git History
+
+Turn commit messages into searchable context — your agent learns *why* things were built, not just *what* exists:
+
+```bash
+gnosis-mcp ingest-git .                                  # current repo, all files
+gnosis-mcp ingest-git /path/to/repo --since 6m           # last 6 months only
+gnosis-mcp ingest-git . --include "src/*" --max-commits 5 # filtered + limited
+gnosis-mcp ingest-git . --dry-run                         # preview without ingesting
+gnosis-mcp ingest-git . --embed                           # embed for semantic search
+```
+
+Each file's commit history becomes a searchable markdown document stored as `git-history/<file-path>`. The agent finds it via `search_docs` like any other doc — no new tools needed. Incremental re-ingest skips files with unchanged history.
 
 ## Editor Integrations
 
@@ -379,6 +395,7 @@ All tables must share the same schema. Reads use `UNION ALL`. Writes target the 
 
 ```
 gnosis-mcp ingest <path> [--dry-run] [--force] [--embed]    Load files into database
+gnosis-mcp ingest-git <repo> [--since] [--max-commits] [--include] [--exclude] [--dry-run] [--embed]
 gnosis-mcp crawl <url> [--sitemap] [--depth N] [--include] [--exclude] [--dry-run] [--force] [--embed]
 gnosis-mcp serve [--transport stdio|sse|streamable-http] [--ingest PATH] [--watch PATH]
 gnosis-mcp search <query> [-n LIMIT] [-c CAT] [--embed]    Search docs
@@ -421,6 +438,8 @@ src/gnosis_mcp/
 ├── server.py          FastMCP server — 6 tools, 3 resources, auto-embed queries
 ├── ingest.py          File scanner + converters — multi-format, smart chunking
 ├── crawl.py           Web crawler — sitemap/BFS, robots.txt, ETag caching
+├── parsers/           Non-file ingest sources (git history, future: schemas)
+│   └── git_history.py Git log → markdown documents per file
 ├── watch.py           File watcher — mtime polling, auto-re-ingest
 ├── schema.py          PostgreSQL DDL — tables, indexes, search functions
 ├── embed.py           Embedding providers — OpenAI, Ollama, custom, local ONNX
@@ -449,7 +468,7 @@ git clone https://github.com/nicholasglazer/gnosis-mcp.git
 cd gnosis-mcp
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pytest                    # 470+ tests, no database needed
+pytest                    # 520+ tests, no database needed
 ruff check src/ tests/
 ```
 

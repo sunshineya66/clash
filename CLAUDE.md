@@ -15,11 +15,14 @@ src/gnosis_mcp/
 ├── server.py          # FastMCP server: 6 tools + 3 resources + auto-embed queries
 ├── ingest.py          # File ingestion + converters: multi-format (.md/.txt/.ipynb/.toml/.csv/.json + optional .rst/.pdf), smart chunking, hashing
 ├── crawl.py           # Web crawler: sitemap/BFS URL discovery, robots.txt, ETag caching, trafilatura HTML→markdown, rate-limited async fetching
+├── parsers/           # Non-file ingest sources
+│   ├── __init__.py    # Package init
+│   └── git_history.py # Git log → searchable markdown: parse commits, group by file, render, ingest via existing pipeline
 ├── watch.py           # File watcher: mtime polling, debounce, auto-re-ingest + auto-embed on changes
 ├── schema.py          # PostgreSQL DDL — tables, indexes, HNSW, hybrid search functions
 ├── embed.py           # Embedding providers: openai/ollama/custom/local, batch backfill
 ├── local_embed.py     # Local ONNX embedding engine — stdlib urllib model download, CPU inference
-└── cli.py             # argparse CLI: serve, init-db, ingest, crawl, search, embed, stats, export, diff, check
+└── cli.py             # argparse CLI: serve, init-db, ingest, ingest-git, crawl, search, embed, stats, export, diff, check
 ```
 
 ## Backend Protocol

@@ -5,6 +5,11 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.10.1] - 2026-02-23
+
+### Changed
+- Documentation: added REST API usage to README, llms.txt, llms-full.txt, CLAUDE.md
+
 ## [0.10.0] - 2026-02-23
 
 ### Added

@@ -75,6 +75,10 @@ Returns: `{"path", "chunks_updated", "action": "metadata_updated"}`
 - `gnosis://docs/{path}` -- read document content by path
 - `gnosis://categories` -- list categories with doc counts
 
+## REST API (v0.10.0+)
+
+Enable with `--rest` flag or `GNOSIS_MCP_REST=true`. Runs alongside MCP on the same HTTP port. Endpoints: `GET /health`, `GET /api/search?q=&limit=&category=`, `GET /api/docs/{path}`, `GET /api/docs/{path}/related`, `GET /api/categories`. Optional CORS (`GNOSIS_MCP_CORS_ORIGINS`) and API key auth (`GNOSIS_MCP_API_KEY`). No new dependencies — uses Starlette (already bundled with mcp>=1.20).
+
 ## Backends
 
 | | SQLite (default) | SQLite + embeddings | PostgreSQL |

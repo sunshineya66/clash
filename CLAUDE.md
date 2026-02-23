@@ -56,6 +56,19 @@ Default install: `mcp>=1.20` + `aiosqlite>=0.20`. Optional extras: `[postgres]` 
 - **gnosis://docs/{path}** -- read document content by path
 - **gnosis://categories** -- list categories with doc counts
 
+## REST API (optional, v0.10.0+)
+
+Enable with `--rest` flag or `GNOSIS_MCP_REST=true`. Runs alongside MCP on the same HTTP port.
+
+- **GET /health** — server status, version, doc count
+- **GET /api/search?q=&limit=&category=** — search docs (auto-embeds with local provider)
+- **GET /api/docs/{path}** — get document by file path
+- **GET /api/docs/{path}/related** — get related documents
+- **GET /api/categories** — list categories with counts
+
+Config: `GNOSIS_MCP_CORS_ORIGINS` (comma-separated or `*`), `GNOSIS_MCP_API_KEY` (Bearer auth).
+New file: `rest.py` — Starlette routes, own backend lifespan, CORS + auth middleware.
+
 ## Key Design Decisions
 
 - **Backend Protocol pattern**: High-level Protocol (not connection wrapper) — PG and SQLite SQL differ too much for a thin wrapper

@@ -126,6 +126,27 @@ The `[embeddings]` extra installs: onnxruntime, tokenizers, numpy, sqlite-vec. D
 - **gnosis://docs/{path}** — Read document content by path
 - **gnosis://categories** — List categories with document counts
 
+## REST API (v0.10.0+)
+
+Enable native HTTP endpoints alongside MCP on the same port. Uses Starlette (bundled with mcp>=1.20, no new dependencies).
+
+Enable: `gnosis-mcp serve --transport streamable-http --rest`
+Or set: `GNOSIS_MCP_REST=true`
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /health` | `{"status": "ok", "version", "backend", "docs"}` |
+| `GET /api/search?q=&limit=&category=` | `{"results": [...], "query", "count"}` — auto-embeds with local provider |
+| `GET /api/docs/{path}` | `{"title", "content", "category", "audience", "tags", "chunks"}` |
+| `GET /api/docs/{path}/related` | `{"results": [{"related_path", "relation_type", "direction"}]}` |
+| `GET /api/categories` | `[{"category", "docs"}]` |
+
+| Env Variable | Description |
+|---|---|
+| `GNOSIS_MCP_REST` | `true`/`1`/`yes` to enable REST API |
+| `GNOSIS_MCP_CORS_ORIGINS` | `*` or comma-separated origins (e.g. `http://localhost:5174`) |
+| `GNOSIS_MCP_API_KEY` | Bearer token required in `Authorization: Bearer <key>` |
+
 ## Configuration (Environment Variables)
 
 All settings via GNOSIS_MCP_* environment variables. Nothing required for SQLite.

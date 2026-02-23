@@ -186,6 +186,45 @@ For remote deployment, use Streamable HTTP:
 gnosis-mcp serve --transport streamable-http --host 0.0.0.0 --port 8000
 ```
 
+## REST API
+
+> v0.10.0+ — Enable native HTTP endpoints alongside MCP on the same port.
+
+```bash
+gnosis-mcp serve --transport streamable-http --rest
+```
+
+Web apps can now query your docs over plain HTTP — no MCP protocol required.
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /health` | Server status, version, doc count |
+| `GET /api/search?q=&limit=&category=` | Search docs (auto-embeds with local provider) |
+| `GET /api/docs/{path}` | Get document by file path |
+| `GET /api/docs/{path}/related` | Get related documents |
+| `GET /api/categories` | List categories with counts |
+
+**Environment variables:**
+
+| Variable | Description |
+|----------|-------------|
+| `GNOSIS_MCP_REST=true` | Enable REST API (same as `--rest`) |
+| `GNOSIS_MCP_CORS_ORIGINS` | CORS allowed origins: `*` or comma-separated list |
+| `GNOSIS_MCP_API_KEY` | Optional Bearer token auth |
+
+**Examples:**
+
+```bash
+# Health check
+curl http://127.0.0.1:8000/health
+
+# Search
+curl "http://127.0.0.1:8000/api/search?q=authentication&limit=5"
+
+# With API key
+curl -H "Authorization: Bearer sk-secret" "http://127.0.0.1:8000/api/search?q=setup"
+```
+
 ## Backends
 
 | | SQLite (default) | SQLite + embeddings | PostgreSQL |

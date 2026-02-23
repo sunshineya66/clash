@@ -5,6 +5,13 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.5] - 2026-02-23
+
+### Fixed
+- **RST `include` directive crash**: `_convert_rst()` now disables `file_insertion_enabled` and `raw_enabled` in docutils settings
+- RST files with `.. include::` or `.. raw::` directives no longer crash ingestion
+- Added `except Exception` fallback that returns raw text with warning log on any docutils failure
+
 ## [0.9.4] - 2026-02-23
 
 ### Changed

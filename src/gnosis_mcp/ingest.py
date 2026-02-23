@@ -524,7 +524,15 @@ def _convert_rst(text: str, file_path: Path) -> str:
     try:
         from docutils.core import publish_parts
 
-        parts = publish_parts(text, writer="html")
+        parts = publish_parts(
+            text,
+            writer="html",
+            settings_overrides={
+                "file_insertion_enabled": False,  # block .. include:: directives
+                "raw_enabled": False,  # block .. raw:: directives
+                "halt_level": 5,  # never halt on warnings/errors
+            },
+        )
         html = parts["html_body"]
         # Convert HTML headings to markdown
         clean = re.sub(
@@ -539,6 +547,9 @@ def _convert_rst(text: str, file_path: Path) -> str:
         return clean if clean else f"# {file_path.stem}\n\n{text}"
     except ImportError:
         # docutils not installed — wrap as plain text
+        return f"# {file_path.stem}\n\n{text}"
+    except Exception:
+        log.warning("RST conversion failed for %s, treating as plain text", file_path)
         return f"# {file_path.stem}\n\n{text}"
 
 

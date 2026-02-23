@@ -591,6 +591,22 @@ class TestConvertRstWithDocutils:
         assert "Title" in result
         assert "Paragraph" in result
 
+    def test_rst_include_directive_does_not_crash(self):
+        """RST with .. include:: directive should not crash (file_insertion disabled)."""
+        pytest.importorskip("docutils")
+        rst = "Title\n=====\n\n.. include:: /nonexistent/file.rst\n\nSome text."
+        result = _convert_rst(rst, Path("doc.rst"))
+        # Should produce output without crashing
+        assert len(result) > 0
+        assert "Title" in result
+
+    def test_rst_raw_directive_safe(self):
+        """RST with .. raw:: directive should not execute (raw_enabled=False)."""
+        pytest.importorskip("docutils")
+        rst = "Title\n=====\n\n.. raw:: html\n\n   <script>alert('xss')</script>\n\nText."
+        result = _convert_rst(rst, Path("doc.rst"))
+        assert "<script>" not in result
+
 
 class TestSupportedExts:
     def test_base_exts_always_present(self):

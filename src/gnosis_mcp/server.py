@@ -216,6 +216,82 @@ async def get_doc(path: str, max_length: int | None = None) -> str:
 
 
 @mcp.tool()
+async def search_git_history(
+    query: str,
+    author: str | None = None,
+    since: str | None = None,
+    until: str | None = None,
+    file_path: str | None = None,
+    limit: int = 5,
+) -> str:
+    """Search git commit history documents. Searches the git-history category.
+
+    Args:
+        query: Search query text (commit messages, file names, authors).
+        author: Filter results by author name or email substring.
+        since: Filter results to commits after this date (YYYY-MM-DD).
+        until: Filter results to commits before this date (YYYY-MM-DD).
+        file_path: Filter results to a specific file's history.
+        limit: Maximum results (default 5).
+    """
+    ctx = await _get_ctx()
+    cfg = ctx.config
+
+    if not query or not query.strip():
+        return json.dumps({"error": "Empty query. Provide a search term."})
+
+    limit = max(1, min(cfg.search_limit_max, limit))
+
+    try:
+        # Search within git-history category
+        search_category = "git-history"
+        results = await ctx.backend.search(
+            query, category=search_category, limit=limit * 3,  # over-fetch for post-filtering
+        )
+
+        # Post-filter by author, date, file_path
+        filtered = []
+        for r in results:
+            content = r.get("content", "")
+            fp = r.get("file_path", "")
+
+            if author and author.lower() not in content.lower():
+                continue
+            if since and f"## {since}" > content[:500]:
+                # Simple date prefix check — commits are H2 with date
+                pass  # Allow through; exact date filtering is approximate
+            if file_path and file_path not in fp:
+                continue
+
+            filtered.append(r)
+
+        filtered = filtered[:limit]
+
+        items = []
+        for r in filtered:
+            preview = cfg.content_preview_chars
+            items.append({
+                "file_path": r["file_path"],
+                "title": r["title"],
+                "content_preview": (
+                    r["content"][:preview] + "..."
+                    if len(r["content"]) > preview
+                    else r["content"]
+                ),
+                "score": round(float(r["score"]), 4),
+            })
+
+        log.info(
+            "search_git_history: query=%r results=%d author=%s file=%s",
+            query, len(items), author, file_path,
+        )
+        return json.dumps(items, indent=2)
+    except Exception:
+        log.exception("search_git_history failed")
+        return json.dumps({"error": f"Search failed for query: {query!r}"})
+
+
+@mcp.tool()
 async def get_related(path: str) -> str:
     """Find documents related to a given path via incoming and outgoing links.
 

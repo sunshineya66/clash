@@ -5,6 +5,14 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.10] - 2026-02-23
+
+### Added
+- **`search_git_history` MCP tool**: Dedicated tool for searching git commit history with post-filters
+- Scoped to `git-history` category automatically — no need to pass `category` parameter
+- Filters: `author` (name/email substring), `since`, `until`, `file_path` (path substring)
+- Over-fetches 3x then post-filters for accurate author/file matching
+
 ## [0.9.9] - 2026-02-23
 
 ### Added

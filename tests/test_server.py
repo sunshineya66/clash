@@ -19,6 +19,7 @@ from gnosis_mcp.server import (
     list_docs,
     read_doc_resource,
     search_docs,
+    search_git_history,
     update_metadata,
     upsert_doc,
 )
@@ -428,6 +429,86 @@ class TestListCategoriesResource:
         categories = {r["category"] for r in data}
         assert "guides" in categories
         assert "reference" in categories
+
+
+# ---------------------------------------------------------------------------
+# MCP Tool tests — search_git_history
+# ---------------------------------------------------------------------------
+
+
+class TestSearchGitHistoryTool:
+    @pytest.mark.asyncio
+    async def test_empty_query_error(self, writable_ctx):
+        result = await search_git_history("")
+        data = json.loads(result)
+        assert "error" in data
+        assert "Empty query" in data["error"]
+
+    @pytest.mark.asyncio
+    async def test_no_results(self, writable_ctx):
+        result = await search_git_history("nonexistent commit xyz")
+        data = json.loads(result)
+        assert data == []
+
+    @pytest.mark.asyncio
+    async def test_searches_git_history_category(self, writable_ctx):
+        # Insert a doc in git-history category
+        await writable_ctx.backend.upsert_doc(
+            "git-history/src/main.py",
+            ["## 2026-02-20\n\nAuthor: Alice <alice@test.com>\n\nRefactored main module"],
+            title="Git history for src/main.py",
+            category="git-history",
+        )
+        # Insert a doc in a different category — should NOT appear
+        await writable_ctx.backend.upsert_doc(
+            "guides/main.md",
+            ["Refactored main module guide"],
+            title="Main guide",
+            category="guides",
+        )
+        result = await search_git_history("refactored main")
+        data = json.loads(result)
+        assert len(data) >= 1
+        assert all("git-history" in d["file_path"] for d in data)
+
+    @pytest.mark.asyncio
+    async def test_author_filter(self, writable_ctx):
+        await writable_ctx.backend.upsert_doc(
+            "git-history/a.py",
+            ["## 2026-02-20\n\nAuthor: Alice <alice@test.com>\n\nFixed bug in a.py"],
+            title="Git history for a.py",
+            category="git-history",
+        )
+        await writable_ctx.backend.upsert_doc(
+            "git-history/b.py",
+            ["## 2026-02-20\n\nAuthor: Bob <bob@test.com>\n\nFixed bug in b.py"],
+            title="Git history for b.py",
+            category="git-history",
+        )
+        result = await search_git_history("fixed bug", author="Alice")
+        data = json.loads(result)
+        # Only Alice's result should appear
+        for item in data:
+            assert item["file_path"] == "git-history/a.py"
+
+    @pytest.mark.asyncio
+    async def test_file_path_filter(self, writable_ctx):
+        await writable_ctx.backend.upsert_doc(
+            "git-history/src/app.py",
+            ["## 2026-02-20\n\nAdded feature to app"],
+            title="Git history for src/app.py",
+            category="git-history",
+        )
+        await writable_ctx.backend.upsert_doc(
+            "git-history/src/util.py",
+            ["## 2026-02-20\n\nAdded feature to util"],
+            title="Git history for src/util.py",
+            category="git-history",
+        )
+        result = await search_git_history("added feature", file_path="app.py")
+        data = json.loads(result)
+        for item in data:
+            assert "app.py" in item["file_path"]
 
 
 # ---------------------------------------------------------------------------

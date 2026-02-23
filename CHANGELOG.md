@@ -5,6 +5,11 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.10.3] - 2026-02-23
+
+### Fixed
+- Custom search function disambiguation: add explicit `NULL::vector` cast for `p_embedding` parameter when no query embedding is provided, fixing `AmbiguousFunctionError` with PostgreSQL databases that have multiple overloaded search function signatures
+
 ## [0.10.2] - 2026-02-23
 
 ### Fixed

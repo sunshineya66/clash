@@ -232,8 +232,8 @@ class PostgresBackend:
             try:
                 rows = await conn.fetch(
                     f"SELECT * FROM {cfg.search_function}("
-                    f"p_query_text := $1, p_embedding := $2::vector, "
-                    f"p_categories := $3, p_limit := $4)",
+                    f"p_query_text := $1::text, p_embedding := $2::vector, "
+                    f"p_categories := $3::text[], p_limit := $4::integer)",
                     query,
                     embedding_str,
                     [category] if category else None,
@@ -243,7 +243,8 @@ class PostgresBackend:
                 log.debug("Custom search function doesn't accept p_embedding, falling back")
                 rows = await conn.fetch(
                     f"SELECT * FROM {cfg.search_function}("
-                    f"p_query_text := $1, p_categories := $2, p_limit := $3)",
+                    f"p_query_text := $1::text, p_embedding := NULL::vector, "
+                    f"p_categories := $2::text[], p_limit := $3::integer)",
                     query,
                     [category] if category else None,
                     limit,
@@ -251,7 +252,8 @@ class PostgresBackend:
         else:
             rows = await conn.fetch(
                 f"SELECT * FROM {cfg.search_function}("
-                f"p_query_text := $1, p_categories := $2, p_limit := $3)",
+                f"p_query_text := $1::text, p_embedding := NULL::vector, "
+                f"p_categories := $2::text[], p_limit := $3::integer)",
                 query,
                 [category] if category else None,
                 limit,

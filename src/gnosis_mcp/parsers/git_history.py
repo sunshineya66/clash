@@ -66,6 +66,8 @@ class GitIngestConfig:
     """Configuration for git history ingestion."""
 
     since: str | None = None  # e.g. "6m", "2025-01-01"
+    until: str | None = None  # e.g. "2026-02-20"
+    author: str | None = None  # filter by author name/email
     max_commits: int = 10  # per file, most recent
     include: str | None = None  # glob pattern for file paths
     exclude: str | None = None  # glob pattern to skip
@@ -260,6 +262,12 @@ async def _run_git_log(
 
     if config.since:
         cmd.append(f"--since={config.since}")
+
+    if config.until:
+        cmd.append(f"--until={config.until}")
+
+    if config.author:
+        cmd.append(f"--author={config.author}")
 
     proc = await asyncio.create_subprocess_exec(
         *cmd,

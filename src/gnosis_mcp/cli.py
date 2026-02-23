@@ -486,6 +486,8 @@ def cmd_ingest_git(args: argparse.Namespace) -> None:
 
     git_config = GitIngestConfig(
         since=args.since,
+        until=getattr(args, "until", None),
+        author=getattr(args, "author", None),
         max_commits=args.max_commits,
         include=getattr(args, "include", None),
         exclude=getattr(args, "exclude", None),
@@ -713,6 +715,14 @@ def main() -> None:
     p_igit.add_argument(
         "--since", default=None,
         help="Only commits since this date (e.g. '6m', '2025-01-01')",
+    )
+    p_igit.add_argument(
+        "--until", default=None,
+        help="Only commits until this date (e.g. '2026-02-20')",
+    )
+    p_igit.add_argument(
+        "--author", default=None,
+        help="Filter commits by author name or email (e.g. 'Alice', 'alice@example.com')",
     )
     p_igit.add_argument(
         "--max-commits", type=int, default=10,

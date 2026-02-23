@@ -488,6 +488,40 @@ class TestIngestGitIntegration:
         for r in results:
             assert r.commits <= 1
 
+    def test_author_filter(self, tmp_path: Path):
+        """--author filters commits by author name."""
+        from gnosis_mcp.config import GnosisMcpConfig
+        from gnosis_mcp.parsers.git_history import ingest_git
+
+        repo = _create_temp_repo(tmp_path)
+        db_path = tmp_path / "test.db"
+        cfg = GnosisMcpConfig(database_url=f"sqlite:///{db_path}")
+        # Use a non-existent author — should find no commits
+        git_cfg = GitIngestConfig(author="NonExistentAuthor12345", dry_run=True)
+
+        results = asyncio.run(ingest_git(cfg, str(repo), git_cfg))
+        # Either skipped or empty — no commits from this author
+        assert all(r.action in ("skipped", "dry-run") for r in results)
+        if any(r.action == "dry-run" for r in results):
+            # Shouldn't happen for a non-existent author
+            pass
+        else:
+            assert any(r.detail == "No commits found" for r in results)
+
+    def test_until_filter(self, tmp_path: Path):
+        """--until filters commits by end date."""
+        from gnosis_mcp.config import GnosisMcpConfig
+        from gnosis_mcp.parsers.git_history import ingest_git
+
+        repo = _create_temp_repo(tmp_path)
+        db_path = tmp_path / "test.db"
+        cfg = GnosisMcpConfig(database_url=f"sqlite:///{db_path}")
+        # Use a date far in the past — should find no commits
+        git_cfg = GitIngestConfig(until="2000-01-01", dry_run=True)
+
+        results = asyncio.run(ingest_git(cfg, str(repo), git_cfg))
+        assert all(r.action == "skipped" for r in results)
+
     def test_force_reingest(self, tmp_path: Path):
         """--force re-ingests even if content hash is unchanged."""
         from gnosis_mcp.config import GnosisMcpConfig

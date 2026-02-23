@@ -5,6 +5,12 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.9] - 2026-02-23
+
+### Added
+- **`--author` filter for `ingest-git`**: Filter commits by author name or email (e.g. `--author Alice`)
+- **`--until` filter for `ingest-git`**: End date filter complementing existing `--since` (e.g. `--until 2026-02-20`)
+
 ## [0.9.8] - 2026-02-23
 
 ### Added

@@ -16,6 +16,9 @@ log = logging.getLogger("gnosis_mcp")
 
 mcp = FastMCP("gnosis-mcp", lifespan=app_lifespan, streamable_http_path="/mcp")
 
+# In-memory search counters for observability (reset on server restart)
+_search_stats: dict[str, int] = {"total": 0, "misses": 0, "hybrid": 0, "keyword": 0}
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -149,6 +152,20 @@ async def search_docs(
             if r.get("highlight"):
                 item["highlight"] = r["highlight"]
             items.append(item)
+
+        # Log query for observability
+        top_path = items[0]["file_path"] if items else None
+        top_score = items[0]["score"] if items else None
+        search_mode = "hybrid" if query_embedding else "keyword"
+        _search_stats["total"] += 1
+        _search_stats[search_mode] += 1
+        if not items:
+            _search_stats["misses"] += 1
+        log.info(
+            "search: query=%r mode=%s results=%d top=%s score=%s cat=%s",
+            query, search_mode, len(items), top_path, top_score, category,
+        )
+
         return json.dumps(items, indent=2)
     except Exception:
         log.exception("search_docs failed")

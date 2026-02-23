@@ -5,6 +5,13 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.2] - 2026-02-23
+
+### Added
+- **Query logging**: Every `search_docs` call logs query, mode (keyword/hybrid), result count, top result path, score, and category
+- **Search stats counters**: In-memory `_search_stats` dict tracks total searches, misses (zero results), and search mode breakdown
+- Enables search quality monitoring: watch for rising miss rate or declining scores
+
 ## [0.9.1] - 2026-02-23
 
 ### Added

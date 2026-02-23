@@ -171,6 +171,28 @@ class TestSearchDocsTool:
         assert "content_preview" in data[0]
 
     @pytest.mark.asyncio
+    async def test_search_stats_tracked(self, writable_ctx):
+        """Search stats counters should track total/misses/mode."""
+        server_mod._search_stats["total"] = 0
+        server_mod._search_stats["misses"] = 0
+        server_mod._search_stats["keyword"] = 0
+
+        await search_docs("nonexistent xyz")
+        assert server_mod._search_stats["total"] == 1
+        assert server_mod._search_stats["misses"] == 1
+        assert server_mod._search_stats["keyword"] == 1
+
+        await writable_ctx.backend.upsert_doc(
+            "stats-test.md",
+            ["Content about search stats tracking"],
+            title="Stats",
+            category="test",
+        )
+        await search_docs("search stats")
+        assert server_mod._search_stats["total"] == 2
+        assert server_mod._search_stats["misses"] == 1  # only first was a miss
+
+    @pytest.mark.asyncio
     async def test_limit_respected(self, writable_ctx):
         for i in range(6):
             await writable_ctx.backend.upsert_doc(

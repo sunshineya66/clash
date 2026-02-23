@@ -108,6 +108,22 @@ class TestDocEndpoint:
         assert r.status_code == 404
 
 
+class TestRelatedEndpoint:
+    def test_get_related_empty(self, seeded_client):
+        r = seeded_client.get("/api/docs/guides/quickstart.md/related")
+        assert r.status_code == 200
+        data = r.json()
+        assert "results" in data
+        assert isinstance(data["results"], list)
+
+    def test_get_related_not_found(self, seeded_client):
+        r = seeded_client.get("/api/docs/nonexistent.md/related")
+        assert r.status_code == 200
+        data = r.json()
+        assert "results" in data
+        assert isinstance(data["results"], list)
+
+
 class TestCategoriesEndpoint:
     def test_list_categories(self, seeded_client):
         r = seeded_client.get("/api/categories")

@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, AsyncIterator
+from typing import AsyncIterator
 
 from starlette.applications import Starlette
 from starlette.requests import Request
@@ -25,9 +25,6 @@ from starlette.routing import Mount, Route
 from gnosis_mcp import __version__
 from gnosis_mcp.backend import DocBackend, create_backend
 from gnosis_mcp.config import GnosisMcpConfig
-
-if TYPE_CHECKING:
-    pass
 
 __all__ = ["create_rest_app", "create_combined_app"]
 
@@ -273,14 +270,14 @@ def create_rest_app(config: GnosisMcpConfig) -> Starlette:
     """Create a standalone Starlette app with REST API routes and its own backend lifespan."""
     app = Starlette(routes=_make_routes(), lifespan=_make_lifespan(config))
 
-    # Wrap with CORS if configured (innermost first)
+    # Wrap with API key auth first (innermost after Starlette)
+    if config.api_key:
+        app = ApiKeyMiddleware(app, config.api_key)
+
+    # Wrap with CORS last (outermost) — must handle OPTIONS before auth check
     if config.cors_origins:
         origins = [o.strip() for o in config.cors_origins.split(",")]
         app = CorsMiddleware(app, origins)
-
-    # Wrap with API key auth if configured (outermost — checked first)
-    if config.api_key:
-        app = ApiKeyMiddleware(app, config.api_key)
 
     return app
 
@@ -302,11 +299,11 @@ def create_combined_app(mcp_server, transport: str, config: GnosisMcpConfig) -> 
 
     app = Starlette(routes=routes, lifespan=_make_lifespan(config))
 
+    if config.api_key:
+        app = ApiKeyMiddleware(app, config.api_key)
+
     if config.cors_origins:
         origins = [o.strip() for o in config.cors_origins.split(",")]
         app = CorsMiddleware(app, origins)
-
-    if config.api_key:
-        app = ApiKeyMiddleware(app, config.api_key)
 
     return app

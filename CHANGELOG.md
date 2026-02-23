@@ -5,6 +5,14 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.10.2] - 2026-02-23
+
+### Fixed
+- CORS preflight now works when API key auth is enabled (middleware ordering fix: CORS outermost, auth innermost)
+- Added test coverage for `/api/docs/{path}/related` endpoint
+- Removed no-op `TYPE_CHECKING` block from `rest.py`
+- `--rest` with stdio transport now logs a warning instead of silently ignoring
+
 ## [0.10.1] - 2026-02-23
 
 ### Changed

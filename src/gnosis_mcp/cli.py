@@ -58,6 +58,9 @@ def cmd_serve(args: argparse.Namespace) -> None:
 
     rest_enabled = args.rest if args.rest else config.rest
 
+    if rest_enabled and transport == "stdio":
+        log.warning("--rest flag ignored: REST API requires an HTTP transport (use --transport streamable-http or sse)")
+
     if rest_enabled and transport in ("sse", "streamable-http"):
         import uvicorn
         from gnosis_mcp.rest import create_combined_app

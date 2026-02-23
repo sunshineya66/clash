@@ -5,6 +5,13 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.11] - 2026-02-23
+
+### Added
+- **Git history eval cases**: 5 new eval cases for commit messages, author emails, and file changes
+- 4 sample git-history documents added to eval fixture (auth, db, tests, pyproject)
+- Eval harness now covers 10 cases total: 90% hit rate, 0.85 MRR on sample corpus
+
 ## [0.9.10] - 2026-02-23
 
 ### Added

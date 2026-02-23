@@ -28,5 +28,35 @@
     "expected_paths": ["postgres", "backend"],
     "category": null,
     "description": "PG query should find backend-related docs"
+  },
+  {
+    "query": "refactored authentication module",
+    "expected_paths": ["git-history/src/auth.py"],
+    "category": "git-history",
+    "description": "Git history: find commit about auth refactor"
+  },
+  {
+    "query": "fixed database connection pool",
+    "expected_paths": ["git-history/src/db.py"],
+    "category": "git-history",
+    "description": "Git history: find commit fixing DB pool"
+  },
+  {
+    "query": "alice@example.com",
+    "expected_paths": ["git-history/"],
+    "category": "git-history",
+    "description": "Git history: search by author email"
+  },
+  {
+    "query": "added unit tests for search",
+    "expected_paths": ["git-history/tests/test_search.py"],
+    "category": "git-history",
+    "description": "Git history: find commit adding search tests"
+  },
+  {
+    "query": "bumped version to 2.0",
+    "expected_paths": ["git-history/"],
+    "category": "git-history",
+    "description": "Git history: find version bump commit"
   }
 ]

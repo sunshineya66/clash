@@ -138,6 +138,69 @@ SAMPLE_DOCS = [
     },
 ]
 
+SAMPLE_GIT_HISTORY_DOCS = [
+    {
+        "path": "git-history/src/auth.py",
+        "content": (
+            "# Git History: src/auth.py\n\n"
+            "## 2026-02-18\n\n"
+            "Author: Alice <alice@example.com>\n\n"
+            "Refactored authentication module to use JWT tokens\n\n"
+            "Files: src/auth.py\n\n"
+            "## 2026-02-15\n\n"
+            "Author: Bob <bob@example.com>\n\n"
+            "Initial authentication with session cookies\n\n"
+            "Files: src/auth.py"
+        ),
+        "title": "Git history for src/auth.py",
+        "category": "git-history",
+    },
+    {
+        "path": "git-history/src/db.py",
+        "content": (
+            "# Git History: src/db.py\n\n"
+            "## 2026-02-20\n\n"
+            "Author: Alice <alice@example.com>\n\n"
+            "Fixed database connection pool exhaustion under high load\n\n"
+            "Files: src/db.py\n\n"
+            "## 2026-02-10\n\n"
+            "Author: Charlie <charlie@example.com>\n\n"
+            "Added connection pooling with asyncpg\n\n"
+            "Files: src/db.py"
+        ),
+        "title": "Git history for src/db.py",
+        "category": "git-history",
+    },
+    {
+        "path": "git-history/tests/test_search.py",
+        "content": (
+            "# Git History: tests/test_search.py\n\n"
+            "## 2026-02-19\n\n"
+            "Author: Bob <bob@example.com>\n\n"
+            "Added unit tests for search ranking and hybrid mode\n\n"
+            "Files: tests/test_search.py"
+        ),
+        "title": "Git history for tests/test_search.py",
+        "category": "git-history",
+    },
+    {
+        "path": "git-history/pyproject.toml",
+        "content": (
+            "# Git History: pyproject.toml\n\n"
+            "## 2026-02-21\n\n"
+            "Author: Alice <alice@example.com>\n\n"
+            "Bumped version to 2.0 for major release\n\n"
+            "Files: pyproject.toml\n\n"
+            "## 2026-02-14\n\n"
+            "Author: Alice <alice@example.com>\n\n"
+            "Initial project setup with hatchling build system\n\n"
+            "Files: pyproject.toml"
+        ),
+        "title": "Git history for pyproject.toml",
+        "category": "git-history",
+    },
+]
+
 
 async def _build_eval_db(tmp_path: Path) -> "SqliteBackend":
     """Create a populated SQLite backend for eval testing."""
@@ -149,7 +212,7 @@ async def _build_eval_db(tmp_path: Path) -> "SqliteBackend":
     await backend.startup()
     await backend.init_schema()
 
-    for doc in SAMPLE_DOCS:
+    for doc in SAMPLE_DOCS + SAMPLE_GIT_HISTORY_DOCS:
         chunks = chunk_by_headings(doc["content"], doc["path"])
         await backend.ingest_file(
             doc["path"],

@@ -5,6 +5,17 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.10.0] - 2026-02-23
+
+### Added
+- **REST API**: Native HTTP endpoints alongside MCP — `GET /api/search`, `/api/docs/{path}`, `/api/docs/{path}/related`, `/api/categories`, `/health`
+- Enable via `--rest` flag on `serve` or `GNOSIS_MCP_REST=true` env var
+- Optional CORS support via `GNOSIS_MCP_CORS_ORIGINS` (comma-separated origins or `*`)
+- Optional API key auth via `GNOSIS_MCP_API_KEY` (Bearer token in Authorization header)
+- `create_rest_app()` factory for standalone REST app
+- `create_combined_app()` factory for MCP + REST on same port
+- Hybrid search auto-embeds queries when local provider is configured
+
 ## [0.9.13] - 2026-02-23
 
 ### Added

@@ -56,7 +56,17 @@ def cmd_serve(args: argparse.Namespace) -> None:
         mcp.settings.host = host
         mcp.settings.port = port
 
-    mcp.run(transport=transport)
+    rest_enabled = args.rest if args.rest else config.rest
+
+    if rest_enabled and transport in ("sse", "streamable-http"):
+        import uvicorn
+        from gnosis_mcp.rest import create_combined_app
+
+        app = create_combined_app(mcp, transport, config)
+        log.info("REST API enabled at /api/* and /health")
+        uvicorn.run(app, host=host, port=int(port))
+    else:
+        mcp.run(transport=transport)
 
 
 def cmd_init_db(args: argparse.Namespace) -> None:
@@ -621,6 +631,10 @@ def main() -> None:
         metavar="PATH",
         default=None,
         help="Watch PATH for file changes and auto-re-ingest (implies --ingest)",
+    )
+    p_serve.add_argument(
+        "--rest", action="store_true", default=False,
+        help="Enable REST API endpoints alongside MCP (env: GNOSIS_MCP_REST)",
     )
 
     # init-db

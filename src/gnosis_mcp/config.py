@@ -100,6 +100,11 @@ class GnosisMcpConfig:
     embed_url: str | None = None  # custom endpoint or ollama override
     embed_batch_size: int = 50
 
+    # REST API (disabled by default)
+    rest: bool = False
+    cors_origins: str | None = None  # comma-separated origins, or "*"
+    api_key: str | None = None  # optional Bearer token auth
+
     # Server defaults
     transport: str = "stdio"
     host: str = "127.0.0.1"
@@ -283,6 +288,9 @@ class GnosisMcpConfig:
             embed_api_key=env("EMBED_API_KEY"),
             embed_url=env("EMBED_URL"),
             embed_batch_size=env_int("EMBED_BATCH_SIZE", 50),
+            rest=env("REST", "").lower() in ("1", "true", "yes"),
+            cors_origins=env("CORS_ORIGINS"),
+            api_key=env("API_KEY"),
             transport=env("TRANSPORT", "stdio"),
             host=env("HOST", "127.0.0.1"),
             port=env_int("PORT", 8000),

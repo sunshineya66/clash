@@ -206,6 +206,11 @@ class PostgresBackend:
         limit: int = 5,
         query_embedding: list[float] | None = None,
     ) -> list[dict[str, Any]]:
+        query = query.strip()
+        if not query:
+            log.warning("search called with empty query")
+            return []
+
         cfg = self._cfg
 
         or_query = _to_or_query(query)

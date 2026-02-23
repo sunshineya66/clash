@@ -5,6 +5,13 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.7] - 2026-02-23
+
+### Fixed
+- **Empty query handling**: `search()` now validates input — empty/whitespace-only queries return empty list with warning log
+- **File path search fallback**: When FTS5 returns 0 results and query contains `/` or `.`, falls back to `file_path LIKE` search
+- `search_docs` MCP tool returns descriptive error for empty queries instead of silent empty result
+
 ## [0.9.6] - 2026-02-23
 
 ### Added

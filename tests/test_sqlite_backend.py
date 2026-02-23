@@ -281,6 +281,30 @@ class TestSqliteBackendLifecycle:
         assert len(chunks) == 2
         assert chunks[0]["title"] == "V2"
 
+    async def test_empty_query_returns_empty(self, backend):
+        """Empty or whitespace-only queries return empty list."""
+        assert await backend.search("") == []
+        assert await backend.search("   ") == []
+        assert await backend.search("\n\t") == []
+
+    async def test_file_path_query_fallback(self, backend):
+        """Queries containing / or . fall back to file_path LIKE search."""
+        await backend.ingest_file(
+            "src/gnosis_mcp/server.py",
+            [{"title": "Server", "content": "FastMCP server implementation"}],
+            title="Server",
+            category="code",
+            audience="all",
+            has_tags_col=True,
+            has_hash_col=True,
+            content_hash="abc",
+        )
+
+        # FTS5 strips slashes, but file_path LIKE fallback should find it
+        results = await backend.search("gnosis_mcp/server.py")
+        assert len(results) >= 1
+        assert results[0]["file_path"] == "src/gnosis_mcp/server.py"
+
     async def test_title_boost_ranks_title_match_higher(self, backend):
         """BM25 title weight (10x) should rank title matches above content-only matches."""
         await backend.upsert_doc(

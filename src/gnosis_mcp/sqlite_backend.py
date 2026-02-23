@@ -176,13 +176,61 @@ class SqliteBackend:
         limit: int = 5,
         query_embedding: list[float] | None = None,
     ) -> list[dict[str, Any]]:
+        query = query.strip()
+        if not query:
+            log.warning("search called with empty query")
+            return []
+
         if query_embedding and self._has_vec and await self._table_exists(
             "documentation_chunks_vec"
         ):
             return await self._search_hybrid(
                 query, query_embedding, category=category, limit=limit
             )
-        return await self._search_keyword(query, category=category, limit=limit)
+
+        results = await self._search_keyword(query, category=category, limit=limit)
+
+        # Fallback: if FTS5 returned nothing and query looks like a file path,
+        # try a LIKE search on file_path column
+        if not results and ("/" in query or "." in query):
+            results = await self._search_file_path(query, category=category, limit=limit)
+
+        return results
+
+    async def _search_file_path(
+        self,
+        query: str,
+        *,
+        category: str | None = None,
+        limit: int = 5,
+    ) -> list[dict[str, Any]]:
+        """Fallback search by file_path LIKE when FTS5 can't handle the query."""
+        sql = (
+            "SELECT file_path, title, content, category "
+            "FROM documentation_chunks "
+            "WHERE file_path LIKE ? "
+        )
+        params: list[Any] = [f"%{query}%"]
+
+        if category:
+            sql += "AND category = ? "
+            params.append(category)
+
+        sql += "ORDER BY file_path, chunk_index LIMIT ?"
+        params.append(limit)
+
+        rows = await self._db.execute_fetchall(sql, params)
+        return [
+            {
+                "file_path": r[0],
+                "title": r[1],
+                "content": r[2],
+                "category": r[3],
+                "score": 0.5,  # Arbitrary score for LIKE matches
+                "highlight": None,
+            }
+            for r in rows
+        ]
 
     async def _search_keyword(
         self,

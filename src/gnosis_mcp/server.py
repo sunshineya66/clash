@@ -115,6 +115,10 @@ async def search_docs(
     """
     ctx = await _get_ctx()
     cfg = ctx.config
+
+    if not query or not query.strip():
+        return json.dumps({"error": "Empty query. Provide a search term."})
+
     limit = max(1, min(cfg.search_limit_max, limit))
     preview = cfg.content_preview_chars
 

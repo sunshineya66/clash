@@ -5,6 +5,13 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.4] - 2026-02-23
+
+### Changed
+- **Title boosting in FTS5**: `bm25()` now weights title column 10x over content column
+- Searches matching a document's title rank significantly higher than content-only matches
+- SQLite backend only (PostgreSQL uses ts_rank with different weight mechanism)
+
 ## [0.9.3] - 2026-02-23
 
 ### Added

@@ -196,7 +196,7 @@ class SqliteBackend:
 
         sql = (
             "SELECT c.file_path, c.title, c.content, c.category, "
-            "  bm25(documentation_chunks_fts) AS score, "
+            "  bm25(documentation_chunks_fts, 10.0, 1.0) AS score, "
             "  snippet(documentation_chunks_fts, 1, '<mark>', '</mark>', '...', 32) AS highlight "
             "FROM documentation_chunks_fts f "
             "JOIN documentation_chunks c ON c.id = f.rowid "

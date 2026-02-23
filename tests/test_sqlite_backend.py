@@ -280,3 +280,24 @@ class TestSqliteBackendLifecycle:
         chunks = await backend.get_doc("a.md")
         assert len(chunks) == 2
         assert chunks[0]["title"] == "V2"
+
+    async def test_title_boost_ranks_title_match_higher(self, backend):
+        """BM25 title weight (10x) should rank title matches above content-only matches."""
+        await backend.upsert_doc(
+            "title-match.md",
+            ["General introduction to the library"],
+            title="Authentication Guide",
+            category="test",
+        )
+        await backend.upsert_doc(
+            "content-match.md",
+            ["This covers authentication setup and configuration"],
+            title="General Setup",
+            category="test",
+        )
+
+        results = await backend.search("authentication")
+        assert len(results) == 2
+        # Title match should come first due to 10x title weight
+        assert results[0]["file_path"] == "title-match.md"
+        assert results[0]["score"] > results[1]["score"]

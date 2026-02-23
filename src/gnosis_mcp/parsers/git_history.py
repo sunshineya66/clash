@@ -46,6 +46,7 @@ class GitCommit:
 
     hash: str
     author: str
+    author_email: str
     date: str  # ISO 8601
     subject: str
     body: str
@@ -108,6 +109,7 @@ def parse_git_log(log_output: str) -> list[GitCommit]:
 
         commit_hash = ""
         author = ""
+        author_email = ""
         date = ""
         subject = ""
         body = ""
@@ -123,6 +125,8 @@ def parse_git_log(log_output: str) -> list[GitCommit]:
                 commit_hash = line[5:].strip()
             elif line.startswith("AUTHOR:"):
                 author = line[7:].strip()
+            elif line.startswith("EMAIL:"):
+                author_email = line[6:].strip()
             elif line.startswith("DATE:"):
                 date = line[5:].strip()
             elif line.startswith("SUBJECT:"):
@@ -146,6 +150,7 @@ def parse_git_log(log_output: str) -> list[GitCommit]:
             commits.append(GitCommit(
                 hash=commit_hash,
                 author=author,
+                author_email=author_email,
                 date=date,
                 subject=subject,
                 body=body,
@@ -193,7 +198,10 @@ def render_history_markdown(file_path: str, commits: list[GitCommit]) -> str:
         short_hash = c.hash[:7]
 
         parts.append(f"## {date_short}: {c.subject} ({short_hash})")
-        parts.append(f"Author: {c.author}\n")
+        author_line = f"Author: {c.author}"
+        if c.author_email:
+            author_line += f" <{c.author_email}>"
+        parts.append(author_line + "\n")
 
         if c.body:
             parts.append(c.body)
@@ -228,6 +236,7 @@ def _git_log_format() -> str:
         f"{_COMMIT_SEP}%n"
         f"HASH:%H%n"
         f"AUTHOR:%an%n"
+        f"EMAIL:%ae%n"
         f"DATE:%aI%n"
         f"SUBJECT:%s%n"
         f"{_BODY_START}%n%b%n{_BODY_END}%n"

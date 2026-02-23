@@ -5,6 +5,13 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.8] - 2026-02-23
+
+### Added
+- **Author email in git history**: `git log` now captures `%ae` (author email) alongside `%an` (author name)
+- Rendered markdown includes `Author: Name <email>` for better searchability
+- `GitCommit` dataclass gains `author_email` field
+
 ## [0.9.7] - 2026-02-23
 
 ### Fixed

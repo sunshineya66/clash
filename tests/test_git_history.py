@@ -30,6 +30,7 @@ SAMPLE_LOG = """\
 ---GNOSIS_COMMIT---
 HASH:abc123def456789
 AUTHOR:Alice
+EMAIL:alice@example.com
 DATE:2026-02-20T10:30:00+01:00
 SUBJECT:Add billing module
 ---GNOSIS_BODY_START---
@@ -44,6 +45,7 @@ tests/test_billing.py
 ---GNOSIS_COMMIT---
 HASH:def789abc012345
 AUTHOR:Bob
+EMAIL:bob@example.com
 DATE:2026-02-18T14:00:00+01:00
 SUBJECT:Fix webhook retry
 ---GNOSIS_BODY_START---
@@ -72,6 +74,7 @@ class TestParseGitLog:
         c = _make_commits()[0]
         assert c.hash == "abc123def456789"
         assert c.author == "Alice"
+        assert c.author_email == "alice@example.com"
         assert c.date == "2026-02-20T10:30:00+01:00"
         assert c.subject == "Add billing module"
         assert "charge-before-service" in c.body
@@ -81,6 +84,7 @@ class TestParseGitLog:
         c = _make_commits()[1]
         assert c.hash == "def789abc012345"
         assert c.author == "Bob"
+        assert c.author_email == "bob@example.com"
         assert c.subject == "Fix webhook retry"
         assert c.files == ["src/stripe.py"]
 
@@ -248,6 +252,11 @@ class TestRenderHistoryMarkdown:
         md = render_history_markdown("src/stripe.py", _make_commits())
         assert "Author: Alice" in md
 
+    def test_author_email_in_output(self):
+        md = render_history_markdown("src/stripe.py", _make_commits())
+        assert "alice@example.com" in md
+        assert "bob@example.com" in md
+
     def test_body_included(self):
         md = render_history_markdown("src/stripe.py", _make_commits())
         assert "charge-before-service" in md
@@ -270,7 +279,8 @@ class TestRenderHistoryMarkdown:
 
     def test_short_date(self):
         c = GitCommit(
-            hash="aaa", author="X", date="2026-02-20T10:00:00Z",
+            hash="aaa", author="X", author_email="x@test.com",
+            date="2026-02-20T10:00:00Z",
             subject="Test", body="", files=[],
         )
         md = render_history_markdown("f.py", [c])
@@ -278,7 +288,8 @@ class TestRenderHistoryMarkdown:
 
     def test_short_hash(self):
         c = GitCommit(
-            hash="abcdefghijklmnop", author="X", date="2026-01-01",
+            hash="abcdefghijklmnop", author="X", author_email="x@test.com",
+            date="2026-01-01",
             subject="Test", body="", files=[],
         )
         md = render_history_markdown("f.py", [c])
@@ -287,7 +298,8 @@ class TestRenderHistoryMarkdown:
     def test_many_other_files_truncated(self):
         files = [f"file{i}.py" for i in range(20)]
         c = GitCommit(
-            hash="aaa", author="X", date="2026-01-01",
+            hash="aaa", author="X", author_email="x@test.com",
+            date="2026-01-01",
             subject="Bulk", body="", files=files,
         )
         md = render_history_markdown("file0.py", [c])

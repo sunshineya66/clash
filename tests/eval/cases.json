@@ -1,0 +1,32 @@
+[
+  {
+    "query": "search documentation",
+    "expected_paths": ["guides/"],
+    "category": null,
+    "description": "Basic search should find guide docs"
+  },
+  {
+    "query": "how to install",
+    "expected_paths": ["install", "setup", "quickstart"],
+    "category": null,
+    "description": "Install query should surface install/setup docs"
+  },
+  {
+    "query": "configuration environment variables",
+    "expected_paths": ["config"],
+    "category": null,
+    "description": "Config query should find configuration docs"
+  },
+  {
+    "query": "webhook notification",
+    "expected_paths": ["webhook"],
+    "category": null,
+    "description": "Webhook query should surface webhook docs"
+  },
+  {
+    "query": "PostgreSQL backend setup",
+    "expected_paths": ["postgres", "backend"],
+    "category": null,
+    "description": "PG query should find backend-related docs"
+  }
+]

@@ -5,6 +5,14 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.1] - 2026-02-23
+
+### Added
+- **Search quality eval harness**: `tests/eval/` with Precision@K, MRR, and Hit Rate metrics
+- JSON-driven test cases (`tests/eval/cases.json`) — add query-answer pairs to measure retrieval quality
+- Baseline eval: 5 cases, 100% hit rate on sample docs
+- Runs as part of `pytest tests/eval/ -v` — no extra dependencies
+
 ## [0.9.0] - 2026-02-23
 
 ### Added

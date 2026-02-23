@@ -14,6 +14,7 @@ from gnosis_mcp.parsers.git_history import (
     GitCommit,
     GitIngestConfig,
     GitIngestResult,
+    _build_cross_file_links,
     group_by_file,
     parse_git_log,
     render_history_markdown,
@@ -311,6 +312,72 @@ class TestRenderHistoryMarkdown:
 # ---------------------------------------------------------------------------
 
 
+class TestBuildCrossFileLinks:
+    def test_shared_commit_creates_links(self):
+        """Files sharing a commit should be linked."""
+        commits = [
+            GitCommit(
+                hash="abc123",
+                author="Alice",
+                author_email="alice@test.com",
+                date="2026-02-20",
+                subject="Refactor both",
+                body="",
+                files=["src/a.py", "src/b.py"],
+            ),
+        ]
+        filtered = {"src/a.py": commits, "src/b.py": commits}
+        ingested = {"git-history/src/a.py", "git-history/src/b.py"}
+
+        links = _build_cross_file_links(commits, filtered, ingested)
+        assert "git-history/src/a.py" in links
+        assert "git-history/src/b.py" in links["git-history/src/a.py"]
+        assert "git-history/src/a.py" in links["git-history/src/b.py"]
+
+    def test_single_file_commit_no_links(self):
+        """A commit touching one file should not create links."""
+        commits = [
+            GitCommit(
+                hash="abc123",
+                author="Alice",
+                author_email="alice@test.com",
+                date="2026-02-20",
+                subject="Solo change",
+                body="",
+                files=["src/a.py"],
+            ),
+        ]
+        filtered = {"src/a.py": commits}
+        ingested = {"git-history/src/a.py"}
+
+        links = _build_cross_file_links(commits, filtered, ingested)
+        assert links == {}
+
+    def test_only_ingested_paths_linked(self):
+        """Only files in ingested_paths should appear in links."""
+        commits = [
+            GitCommit(
+                hash="abc123",
+                author="Alice",
+                author_email="alice@test.com",
+                date="2026-02-20",
+                subject="Multi-file",
+                body="",
+                files=["src/a.py", "src/b.py", "src/c.py"],
+            ),
+        ]
+        filtered = {"src/a.py": commits, "src/b.py": commits, "src/c.py": commits}
+        # Only a and b were actually ingested
+        ingested = {"git-history/src/a.py", "git-history/src/b.py"}
+
+        links = _build_cross_file_links(commits, filtered, ingested)
+        assert "git-history/src/a.py" in links
+        assert "git-history/src/b.py" in links["git-history/src/a.py"]
+        # c should not appear as it wasn't ingested
+        for targets in links.values():
+            assert "git-history/src/c.py" not in targets
+
+
 class TestContentHash:
     def test_deterministic(self):
         assert _content_hash("hello") == _content_hash("hello")
@@ -542,6 +609,53 @@ class TestIngestGitIntegration:
         r3 = asyncio.run(ingest_git(cfg, str(repo), GitIngestConfig(force=True)))
         ingested = [r for r in r3 if r.action == "ingested"]
         assert len(ingested) >= 2
+
+    def test_cross_file_links(self, tmp_path: Path):
+        """Multi-file commits should create cross-file relates_to links."""
+        from gnosis_mcp.config import GnosisMcpConfig
+        from gnosis_mcp.parsers.git_history import ingest_git
+        from gnosis_mcp.backend import create_backend
+
+        # Create repo with a multi-file commit
+        repo = tmp_path / "cross-repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+        subprocess.run(
+            ["git", "-C", str(repo), "config", "user.email", "test@test.com"],
+            check=True, capture_output=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(repo), "config", "user.name", "Tester"],
+            check=True, capture_output=True,
+        )
+        # Commit touching multiple files at once
+        (repo / "src").mkdir()
+        (repo / "src" / "a.py").write_text("# module a\n")
+        (repo / "src" / "b.py").write_text("# module b\n")
+        subprocess.run(["git", "-C", str(repo), "add", "."], check=True, capture_output=True)
+        subprocess.run(
+            ["git", "-C", str(repo), "commit", "-m", "Add both modules"],
+            check=True, capture_output=True,
+        )
+
+        db_path = tmp_path / "cross.db"
+        cfg = GnosisMcpConfig(database_url=f"sqlite:///{db_path}")
+        git_cfg = GitIngestConfig()
+
+        results = asyncio.run(ingest_git(cfg, str(repo), git_cfg))
+        ingested = [r for r in results if r.action == "ingested"]
+        assert len(ingested) >= 2
+
+        # Verify cross-file links were created
+        backend = create_backend(cfg)
+        asyncio.run(backend.startup())
+        try:
+            related = asyncio.run(backend.get_related("git-history/src/a.py"))
+            if related is not None:
+                related_paths = [r["related_path"] for r in related]
+                assert "git-history/src/b.py" in related_paths
+        finally:
+            asyncio.run(backend.shutdown())
 
     def test_doc_path_prefixed(self, tmp_path: Path):
         from gnosis_mcp.config import GnosisMcpConfig

@@ -227,6 +227,40 @@ def _content_hash(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()[:16]
 
 
+def _build_cross_file_links(
+    commits: list[GitCommit],
+    filtered: dict[str, list[GitCommit]],
+    ingested_paths: set[str],
+) -> dict[str, list[str]]:
+    """Build cross-file links for files that share commits.
+
+    Returns a dict mapping each git-history doc path to its related doc paths.
+    Only includes paths that were actually ingested this run.
+    """
+    filtered_files = set(filtered.keys())
+    links: dict[str, set[str]] = {}
+
+    for commit in commits:
+        # Files from this commit that are in our filtered set
+        shared = [f for f in commit.files if f in filtered_files]
+        if len(shared) < 2:
+            continue
+
+        # Create bidirectional links between all pairs
+        for f in shared:
+            doc_path = f"git-history/{f}"
+            if doc_path not in ingested_paths:
+                continue
+            for other in shared:
+                if other == f:
+                    continue
+                other_doc = f"git-history/{other}"
+                if other_doc in ingested_paths:
+                    links.setdefault(doc_path, set()).add(other_doc)
+
+    return {k: sorted(v) for k, v in links.items()}
+
+
 # ---------------------------------------------------------------------------
 # Git subprocess helpers
 # ---------------------------------------------------------------------------
@@ -414,6 +448,23 @@ async def ingest_git(
                     path=doc_path, commits=0, chunks=0,
                     action="error", detail=str(e),
                 ))
+
+        # Cross-file commit graph links
+        # For files that share commits, create relates_to links between their docs
+        ingested_paths = {r.path for r in results if r.action == "ingested"}
+        if len(ingested_paths) > 1:
+            try:
+                cross_links = _build_cross_file_links(commits, filtered, ingested_paths)
+                for source, targets in cross_links.items():
+                    try:
+                        await backend.insert_links(source, targets)
+                    except Exception:
+                        pass  # links table may not exist
+                if cross_links:
+                    total_links = sum(len(t) for t in cross_links.values())
+                    log.info("Cross-file links: %d sources, %d links", len(cross_links), total_links)
+            except Exception:
+                log.debug("Cross-file link creation failed", exc_info=True)
 
         # Embed if requested
         if config.embed and any(r.action == "ingested" for r in results):

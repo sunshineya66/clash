@@ -5,6 +5,13 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.12] - 2026-02-23
+
+### Added
+- **Cross-file commit graph links**: When a commit touches files A, B, C, their git-history docs now link to each other via `relates_to`
+- `_build_cross_file_links()` pure function for computing shared-commit relationships
+- Links created automatically after `ingest-git` completes, enriching `get_related` results
+
 ## [0.9.11] - 2026-02-23
 
 ### Added

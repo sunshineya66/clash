@@ -5,6 +5,15 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.3] - 2026-02-23
+
+### Added
+- **Contextual chunk headers**: Embedding text now includes `"Document: {path} | Section: {title}"` prefix
+- Embeddings capture hierarchical document context, improving retrieval accuracy for ambiguous queries
+- `contextual_header()` pure function exported from `embed.py`
+- `get_pending_embeddings()` now returns `title` and `file_path` alongside `id` and `content`
+- Re-embed existing docs to benefit: `gnosis-mcp embed --provider local`
+
 ## [0.9.2] - 2026-02-23
 
 ### Added

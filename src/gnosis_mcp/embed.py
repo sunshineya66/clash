@@ -11,7 +11,7 @@ import logging
 import urllib.request
 from dataclasses import dataclass
 
-__all__ = ["embed_texts", "embed_pending", "get_provider_url"]
+__all__ = ["embed_texts", "embed_pending", "get_provider_url", "contextual_header"]
 
 log = logging.getLogger("gnosis_mcp")
 
@@ -29,6 +29,18 @@ class EmbedResult:
     embedded: int
     total_null: int
     errors: int
+
+
+def contextual_header(file_path: str, title: str | None) -> str:
+    """Build a contextual header to prepend to chunk content before embedding.
+
+    Embeds document path and section title into the text so the embedding
+    captures hierarchical context, improving retrieval accuracy.
+    """
+    parts = [f"Document: {file_path}"]
+    if title:
+        parts.append(f"Section: {title}")
+    return " | ".join(parts) + "\n\n"
 
 
 def get_provider_url(provider: str, custom_url: str | None = None) -> str:
@@ -172,7 +184,10 @@ async def embed_pending(
                 break
 
             ids = [r["id"] for r in rows]
-            texts = [r["content"] for r in rows]
+            texts = [
+                contextual_header(r["file_path"], r.get("title")) + r["content"]
+                for r in rows
+            ]
 
             try:
                 vectors = embed_texts(texts, provider, model, api_key, url, dim=dim)

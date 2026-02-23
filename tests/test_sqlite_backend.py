@@ -216,6 +216,8 @@ class TestSqliteBackendLifecycle:
         pending = await backend.get_pending_embeddings(10)
         assert len(pending) == 1
         assert pending[0]["content"] == "Content"
+        assert pending[0]["title"] == "A"
+        assert pending[0]["file_path"] == "a.md"
 
     async def test_search_multi_word_or(self, backend):
         """Multi-word search uses OR — should match docs with any term."""

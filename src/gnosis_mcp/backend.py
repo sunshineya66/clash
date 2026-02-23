@@ -122,7 +122,7 @@ class DocBackend(Protocol):
     async def get_pending_embeddings(self, batch_size: int) -> list[dict[str, Any]]:
         """Get chunks with NULL embeddings.
 
-        Returns list of {id, content}.
+        Returns list of {id, content, title, file_path}.
         """
         ...
 

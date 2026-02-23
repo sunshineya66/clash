@@ -581,11 +581,14 @@ class SqliteBackend:
 
     async def get_pending_embeddings(self, batch_size: int) -> list[dict[str, Any]]:
         rows = await self._db.execute_fetchall(
-            "SELECT id, content FROM documentation_chunks "
+            "SELECT id, content, title, file_path FROM documentation_chunks "
             "WHERE embedding IS NULL ORDER BY id LIMIT ?",
             (batch_size,),
         )
-        return [{"id": r[0], "content": r[1]} for r in rows]
+        return [
+            {"id": r[0], "content": r[1], "title": r[2], "file_path": r[3]}
+            for r in rows
+        ]
 
     async def set_embedding(self, chunk_id: int, embedding: list[float]) -> None:
         # Store as binary blob (compact float32 array)

@@ -13,6 +13,7 @@ from gnosis_mcp.embed import (
     _build_request_openai,
     _parse_response_ollama,
     _parse_response_openai,
+    contextual_header,
     embed_pending,
     embed_texts,
     get_provider_url,
@@ -340,7 +341,10 @@ class TestEmbedPending:
         mock_backend = AsyncMock()
         mock_backend.count_pending_embeddings.return_value = 2
         mock_backend.get_pending_embeddings.side_effect = [
-            [{"id": 1, "content": "hello"}, {"id": 2, "content": "world"}],
+            [
+                {"id": 1, "content": "hello", "title": "Greeting", "file_path": "docs/greet.md"},
+                {"id": 2, "content": "world", "title": "Planet", "file_path": "docs/planet.md"},
+            ],
             [],  # second call returns empty → loop ends
         ]
         monkeypatch.setattr("gnosis_mcp.backend.create_backend", lambda cfg: mock_backend)
@@ -358,14 +362,40 @@ class TestEmbedPending:
         assert mock_backend.set_embedding.await_count == 2
 
     @pytest.mark.asyncio
+    async def test_contextual_header_prepended_to_embed_text(self, monkeypatch):
+        """Embedding text includes contextual header (Document + Section)."""
+        mock_backend = AsyncMock()
+        mock_backend.count_pending_embeddings.return_value = 1
+        mock_backend.get_pending_embeddings.side_effect = [
+            [{"id": 1, "content": "Some content", "title": "Setup", "file_path": "guides/setup.md"}],
+            [],
+        ]
+        monkeypatch.setattr("gnosis_mcp.backend.create_backend", lambda cfg: mock_backend)
+
+        captured_texts = []
+
+        def capture_embed(texts, provider, model, api_key, url, dim=None):
+            captured_texts.extend(texts)
+            return [[0.1]] * len(texts)
+
+        monkeypatch.setattr("gnosis_mcp.embed.embed_texts", capture_embed)
+
+        config = GnosisMcpConfig(database_url=":memory:", backend="sqlite")
+        await embed_pending(config=config, provider="openai", model="test")
+
+        assert len(captured_texts) == 1
+        assert captured_texts[0].startswith("Document: guides/setup.md | Section: Setup\n\n")
+        assert captured_texts[0].endswith("Some content")
+
+    @pytest.mark.asyncio
     async def test_batch_error_records_errors(self, monkeypatch):
         """When embed_texts raises, errors are counted and loop stops."""
         mock_backend = AsyncMock()
         mock_backend.count_pending_embeddings.return_value = 3
         mock_backend.get_pending_embeddings.return_value = [
-            {"id": 1, "content": "a"},
-            {"id": 2, "content": "b"},
-            {"id": 3, "content": "c"},
+            {"id": 1, "content": "a", "title": "T1", "file_path": "f1.md"},
+            {"id": 2, "content": "b", "title": "T2", "file_path": "f2.md"},
+            {"id": 3, "content": "c", "title": "T3", "file_path": "f3.md"},
         ]
         monkeypatch.setattr("gnosis_mcp.backend.create_backend", lambda cfg: mock_backend)
 
@@ -392,3 +422,25 @@ class TestEmbedPending:
             await embed_pending(config=config, provider="openai")
 
         mock_backend.shutdown.assert_awaited_once()
+
+
+class TestContextualHeader:
+    def test_with_title_and_path(self):
+        result = contextual_header("guides/setup.md", "Installation")
+        assert result == "Document: guides/setup.md | Section: Installation\n\n"
+
+    def test_with_none_title(self):
+        result = contextual_header("README.md", None)
+        assert result == "Document: README.md\n\n"
+
+    def test_with_empty_title(self):
+        result = contextual_header("docs/api.md", "")
+        assert result == "Document: docs/api.md\n\n"
+
+    def test_with_url_path(self):
+        result = contextual_header("https://docs.example.com/api", "Authentication")
+        assert result == "Document: https://docs.example.com/api | Section: Authentication\n\n"
+
+    def test_with_deep_section_path(self):
+        result = contextual_header("arch/overview.md", "Components > Database")
+        assert result == "Document: arch/overview.md | Section: Components > Database\n\n"

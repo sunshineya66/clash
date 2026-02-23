@@ -640,12 +640,20 @@ class PostgresBackend:
         qt = cfg.qualified_chunks_table
         async with await self._acquire() as conn:
             rows = await conn.fetch(
-                f"SELECT id, {cfg.col_content} FROM {qt} "
+                f"SELECT id, {cfg.col_content}, {cfg.col_title}, {cfg.col_file_path} FROM {qt} "
                 f"WHERE {cfg.col_embedding} IS NULL "
                 f"ORDER BY id LIMIT $1",
                 batch_size,
             )
-            return [{"id": r["id"], "content": r[cfg.col_content]} for r in rows]
+            return [
+                {
+                    "id": r["id"],
+                    "content": r[cfg.col_content],
+                    "title": r[cfg.col_title],
+                    "file_path": r[cfg.col_file_path],
+                }
+                for r in rows
+            ]
 
     async def set_embedding(self, chunk_id: int, embedding: list[float]) -> None:
         cfg = self._cfg

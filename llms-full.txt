@@ -282,6 +282,10 @@ src/gnosis_mcp/
 
 Default install deps: mcp + aiosqlite. Optional: asyncpg (via `[postgres]` extra), onnxruntime + tokenizers + numpy + sqlite-vec (via `[embeddings]` extra), httpx + trafilatura (via `[web]` extra). Model download uses stdlib urllib (no huggingface-hub dependency).
 
+## Performance
+
+~9,800 QPS on 100 docs / 300 chunks, ~3,500 QPS on 500 docs / 1,500 chunks (SQLite FTS5, keyword search). p50 under 0.25ms. 550+ tests, 10 eval cases (90% hit rate, 0.85 MRR). Install size: ~23MB with `[embeddings]` (ONNX model), ~5MB base. Benchmark script: `python tests/bench/bench_search.py`.
+
 ## License
 
 MIT — https://github.com/nicholasglazer/gnosis-mcp

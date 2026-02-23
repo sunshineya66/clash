@@ -111,8 +111,12 @@ Tables are auto-created on first `ingest`. Run `gnosis-mcp init-db` to create th
 | JetBrains | Settings > Tools > AI Assistant > MCP Servers |
 | Cline | Cline MCP settings panel |
 
+## Performance
+
+~9,800 QPS on 100 docs (300 chunks), ~3,500 QPS on 500 docs (1,500 chunks). p50 latency under 0.25ms. 550+ tests, 10 eval cases (90% hit rate, 0.85 MRR). Install size: ~23MB with `[embeddings]` (ONNX model), ~5MB base. Benchmark: `python tests/bench/bench_search.py`.
+
 ## Documentation
 
-- [README](README.md): Quick start, editor setup, backend comparison, configuration
+- [README](README.md): Quick start, editor setup, backend comparison, configuration, performance
 - [llms-full.txt](llms-full.txt): Complete reference in one file
 - [llms-install.md](llms-install.md): Step-by-step install guide

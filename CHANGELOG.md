@@ -5,6 +5,15 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.13] - 2026-02-23
+
+### Added
+- **Search benchmark script**: `tests/bench/bench_search.py` — automated QPS, latency percentiles, hit rate measurement
+- **Performance section in README**: ~9,800 QPS (100 docs), ~3,500 QPS (500 docs), p50 under 0.25ms
+- Performance data added to `llms.txt` and `llms-full.txt`
+- Install size noted: ~23MB with `[embeddings]`, ~5MB base
+- Test count: 550+ tests, 10 eval cases (90% hit rate, 0.85 MRR)
+
 ## [0.9.12] - 2026-02-23
 
 ### Added

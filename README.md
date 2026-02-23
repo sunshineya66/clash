@@ -461,6 +461,27 @@ src/gnosis_mcp/
 | [`llms-full.txt`](llms-full.txt) | Complete reference in one file |
 | [`llms-install.md`](llms-install.md) | Step-by-step installation guide |
 
+## Performance
+
+Benchmarked on SQLite (in-memory) with keyword search (FTS5 + BM25):
+
+| Corpus | QPS | p50 | p95 | p99 | Hit Rate |
+|--------|-----|-----|-----|-----|----------|
+| 100 docs / 300 chunks | ~9,800 | 0.09ms | 0.16ms | 0.18ms | 100% |
+| 500 docs / 1,500 chunks | ~3,500 | 0.24ms | 0.51ms | 0.82ms | 100% |
+
+Install size: ~23MB with `[embeddings]` (ONNX model). Base install is ~5MB.
+
+Run the benchmark yourself:
+
+```bash
+python tests/bench/bench_search.py                # 100 docs, 1000 queries
+python tests/bench/bench_search.py --docs 500     # larger corpus
+python tests/bench/bench_search.py --json          # machine-readable output
+```
+
+550+ tests, 10 eval cases (90% hit rate, 0.85 MRR on sample corpus). All tests run without a database.
+
 ## Development
 
 ```bash
@@ -468,7 +489,7 @@ git clone https://github.com/nicholasglazer/gnosis-mcp.git
 cd gnosis-mcp
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pytest                    # 520+ tests, no database needed
+pytest                    # 550+ tests, no database needed
 ruff check src/ tests/
 ```
 

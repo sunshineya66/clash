@@ -476,6 +476,27 @@ class TestIngestGitIntegration:
         for r in results:
             assert r.commits <= 1
 
+    def test_force_reingest(self, tmp_path: Path):
+        """--force re-ingests even if content hash is unchanged."""
+        from gnosis_mcp.config import GnosisMcpConfig
+        from gnosis_mcp.parsers.git_history import ingest_git
+
+        repo = _create_temp_repo(tmp_path)
+        db_path = tmp_path / "test.db"
+        cfg = GnosisMcpConfig(database_url=f"sqlite:///{db_path}")
+
+        # First run
+        asyncio.run(ingest_git(cfg, str(repo), GitIngestConfig()))
+
+        # Second run without force — should be unchanged
+        r2 = asyncio.run(ingest_git(cfg, str(repo), GitIngestConfig()))
+        assert all(r.action == "unchanged" for r in r2 if r.action != "skipped")
+
+        # Third run with force — should re-ingest
+        r3 = asyncio.run(ingest_git(cfg, str(repo), GitIngestConfig(force=True)))
+        ingested = [r for r in r3 if r.action == "ingested"]
+        assert len(ingested) >= 2
+
     def test_doc_path_prefixed(self, tmp_path: Path):
         from gnosis_mcp.config import GnosisMcpConfig
         from gnosis_mcp.parsers.git_history import ingest_git

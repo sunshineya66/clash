@@ -71,6 +71,7 @@ class GitIngestConfig:
     embed: bool = False
     dry_run: bool = False
     merge_commits: bool = False  # include merge commits
+    force: bool = False  # re-ingest even if content hash unchanged
 
 
 @dataclass
@@ -354,8 +355,8 @@ async def ingest_git(
                 md = render_history_markdown(fp, file_commits)
                 digest = _content_hash(md)
 
-                # Skip unchanged
-                if has_hash:
+                # Skip unchanged (unless force re-ingest)
+                if has_hash and not config.force:
                     existing = await backend.get_content_hash(doc_path)
                     if existing == digest:
                         doc_chunks = await backend.get_doc(doc_path)

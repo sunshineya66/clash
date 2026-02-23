@@ -492,6 +492,7 @@ def cmd_ingest_git(args: argparse.Namespace) -> None:
         embed=getattr(args, "embed", False),
         dry_run=args.dry_run,
         merge_commits=getattr(args, "merges", False),
+        force=getattr(args, "force", False),
     )
 
     async def _run() -> None:
@@ -726,6 +727,10 @@ def main() -> None:
         help="Skip files matching this glob (e.g. '*.lock,package.json')",
     )
     p_igit.add_argument("--dry-run", action="store_true", help="Preview without ingesting")
+    p_igit.add_argument(
+        "--force", action="store_true",
+        help="Re-ingest all files, ignoring content hash (skip-if-unchanged)",
+    )
     p_igit.add_argument("--embed", action="store_true", help="Embed chunks after ingestion")
     p_igit.add_argument(
         "--merges", action="store_true",

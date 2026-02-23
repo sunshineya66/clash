@@ -5,6 +5,11 @@ All notable changes to gnosis-mcp are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 Versioning follows [Semantic Versioning](https://semver.org/) (pre-1.0).
 
+## [0.9.6] - 2026-02-23
+
+### Added
+- **`--force` flag for `ingest-git`**: Re-ingest all files ignoring content hash, matching `ingest --force` behavior
+
 ## [0.9.5] - 2026-02-23
 
 ### Fixed

